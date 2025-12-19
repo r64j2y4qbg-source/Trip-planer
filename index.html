@@ -1,156 +1,283 @@
-<script>
-    // ------------------------------
-    // Tab 切換功能（保留原本）
-    // ------------------------------
-    function switchTab(tab) {
-        // Hide all pages
-        document.getElementById('itinerary-page').classList.add('hidden');
-        document.getElementById('budget-page').classList.add('hidden');
-
-        // Show target page
-        if (tab === 'itinerary') {
-            document.getElementById('itinerary-page').classList.remove('hidden');
-        } else if (tab === 'budget') {
-            document.getElementById('budget-page').classList.remove('hidden');
-        } else {
-            // For 'food' and 'tools', show itinerary as placeholder
-            document.getElementById('itinerary-page').classList.remove('hidden');
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jady's Travel Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --olive-green: #8E9775;
+            --olive-light: #AFB997;
+            --beige: #FAF9F6;
+            --text-dark: #4A4A4A;
+            --text-gray: #8C8C8C;
+            --border-color: #E8E8E8;
         }
 
-        // Update Nav Icons
-        document.querySelectorAll('nav button').forEach(btn => {
-            btn.classList.remove('active-tab');
-            btn.classList.add('text-gray-300');
+        body {
+            font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
+            background-color: var(--beige);
+            color: var(--text-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .morandi-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(142, 151, 117, 0.05);
+        }
+
+        .active-tab {
+            color: var(--olive-green);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .day-pill.active {
+            background-color: var(--olive-green);
+            color: white;
+            box-shadow: 0 4px 12px rgba(142, 151, 117, 0.2);
+        }
+
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #EFEFEF;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--olive-green);
+        }
+
+        /* 細線風格圖示模擬 */
+        .icon-line {
+            stroke-width: 1.2px;
+            stroke: currentColor;
+            fill: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Top Header -->
+    <header class="px-6 pt-12 pb-4 animate-fade-in">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 class="text-xs tracking-widest text-gray-400 mb-1 uppercase">Current City</h2>
+                <h1 class="text-2xl font-light tracking-tight text-[#2D2D2D]">Kyoto, Japan</h1>
+            </div>
+            <div class="text-right">
+                <span class="text-2xl font-light">22°C</span>
+                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Partly Cloudy</p>
+            </div>
+        </div>
+        
+        <!-- Day Selector -->
+        <div class="flex gap-3 overflow-x-auto hide-scrollbar py-2">
+            <button class="day-pill active px-5 py-2 rounded-full text-sm transition-all flex-shrink-0">Day 1</button>
+            <button class="day-pill px-5 py-2 rounded-full text-sm text-gray-400 border border-gray-100 bg-white transition-all flex-shrink-0">Day 2</button>
+            <button class="day-pill px-5 py-2 rounded-full text-sm text-gray-400 border border-gray-100 bg-white transition-all flex-shrink-0">Day 3</button>
+            <button class="day-pill px-5 py-2 rounded-full text-sm text-gray-400 border border-gray-100 bg-white transition-all flex-shrink-0">Day 4</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-6 overflow-y-auto pb-24">
+        
+        <!-- Itinerary Tab (Default) -->
+        <div id="itinerary-page" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-medium tracking-widest text-gray-500">2024.12.20 SUN</h3>
+                <button class="text-xs text-[#8E9775] font-medium">+ 新增行程</button>
+            </div>
+
+            <!-- Schedule Items -->
+            <div class="space-y-4">
+                <!-- 行程會由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- Budget Tab (Hidden by default) -->
+        <div id="budget-page" class="hidden space-y-8 animate-fade-in">
+            <div class="morandi-card p-8 text-center">
+                <p class="text-xs text-gray-400 tracking-widest mb-2 uppercase">Total Expenses</p>
+                <h2 class="text-3xl font-light mb-1">¥ 0</h2>
+                <p class="text-[11px] text-[#8E9775]">≈ NT$ 0</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- 花費分配會由 JS 動態生成 -->
+            </div>
+            
+            <button class="w-full py-4 border border-dashed border-[#8E9775] text-[#8E9775] rounded-2xl text-sm font-light">
+                + 新增一筆花費
+            </button>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-50 px-8 h-24 flex justify-between items-center z-50">
+        <button onclick="switchTab('itinerary')" id="nav-itinerary" class="flex flex-col items-center gap-1 active-tab">
+            <svg class="w-5 h-5 icon-line" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="text-[10px] font-medium uppercase tracking-widest">行程</span>
+        </button>
+        <button onclick="switchTab('food')" id="nav-food" class="flex flex-col items-center gap-1 text-gray-300">
+            <svg class="w-5 h-5 icon-line" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+            <span class="text-[10px] font-medium uppercase tracking-widest">美食</span>
+        </button>
+        <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center gap-1 text-gray-300">
+            <svg class="w-5 h-5 icon-line" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.63 1m-2.63-1c-1.11 0-2.08.407-2.63 1m2.63 4c1.5 0 2.82.5 3.37 1m-3.37-1c-1.5 0-2.82.5-3.37 1m2.37 4v1m0-18v1"></path></svg>
+            <span class="text-[10px] font-medium uppercase tracking-widest">記帳</span>
+        </button>
+        <button onclick="switchTab('tools')" id="nav-tools" class="flex flex-col items-center gap-1 text-gray-300">
+            <svg class="w-5 h-5 icon-line" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span class="text-[10px] font-medium uppercase tracking-widest">工具</span>
+        </button>
+    </nav>
+
+    <!-- -------------------- JS -------------------- -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ------------------------------
+        // Tab 切換功能
+        // ------------------------------
+        function switchTab(tab) {
+            document.getElementById('itinerary-page').classList.add('hidden');
+            document.getElementById('budget-page').classList.add('hidden');
+            if (tab === 'itinerary') document.getElementById('itinerary-page').classList.remove('hidden');
+            else if (tab === 'budget') document.getElementById('budget-page').classList.remove('hidden');
+            else document.getElementById('itinerary-page').classList.remove('hidden');
+
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-gray-300');
+            });
+            document.getElementById('nav-' + tab).classList.add('active-tab');
+            document.getElementById('nav-' + tab).classList.remove('text-gray-300');
+        }
+        window.switchTab = switchTab;
+
+        // Day pill 選擇
+        document.querySelectorAll('.day-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active', 'bg-white', 'text-gray-400', 'border'));
+                this.classList.add('active');
+            });
         });
-        document.getElementById('nav-' + tab).classList.add('active-tab');
-        document.getElementById('nav-' + tab).classList.remove('text-gray-300');
 
-        console.log('Switch to ' + tab);
-    }
+        // ------------------------------
+        // 資料初始化
+        // ------------------------------
+        let trips = JSON.parse(localStorage.getItem('trips')) || [
+            {time:'09:00', title:'清水寺參拜', note:'注意人潮，預計停留 2 小時', type:''},
+            {time:'12:30', title:'奧丹豆腐料理', note:'已預約，位於二年坂附近', type:'美食'},
+            {time:'15:00', title:'三年坂散策', note:'買特色御守、吃焙茶冰淇淋', type:''}
+        ];
 
-    // ------------------------------
-    // Day pill 選擇效果
-    // ------------------------------
-    document.querySelectorAll('.day-pill').forEach(pill => {
-        pill.addEventListener('click', function() {
-            document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active', 'bg-white', 'text-gray-400', 'border'));
-            this.classList.add('active');
-        });
-    });
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [
+            {name:'食物', amount:5600},
+            {name:'交通', amount:2490},
+            {name:'景點', amount:4360}
+        ];
 
-    // ------------------------------
-    // 資料初始化
-    // ------------------------------
-    let trips = JSON.parse(localStorage.getItem('trips')) || [
-        {time:'09:00', title:'清水寺參拜', note:'注意人潮，預計停留 2 小時', type:''},
-        {time:'12:30', title:'奧丹豆腐料理', note:'已預約，位於二年坂附近', type:'美食'},
-        {time:'15:00', title:'三年坂散策', note:'買特色御守、吃焙茶冰淇淋', type:''}
-    ];
+        // ------------------------------
+        // 行程管理
+        // ------------------------------
+        const tripContainer = document.querySelector('#itinerary-page .space-y-4');
+        function renderTrips() {
+            tripContainer.innerHTML = '';
+            trips.forEach((trip, index) => {
+                const li = document.createElement('div');
+                li.className = 'morandi-card p-5 flex gap-4 items-start border-l-4 ' + (trip.type ? 'border-l-[#8E9775]' : 'border-l-transparent');
+                li.innerHTML = `
+                    <span class="text-[11px] font-light text-gray-400 mt-1">${trip.time}</span>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-medium mb-1">${trip.title}</h4>
+                        <p class="text-xs text-gray-400 font-light">${trip.note}</p>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-[#FAF9F6] text-[#8E9775]">${trip.type}</span>
+                    <button class="text-gray-300 ml-2">刪除</button>
+                `;
+                li.querySelector('button').onclick = () => deleteTrip(index);
+                tripContainer.appendChild(li);
+            });
+        }
 
-    let expenses = JSON.parse(localStorage.getItem('expenses')) || [
-        {name:'食物', amount:5600},
-        {name:'交通', amount:2490},
-        {name:'景點', amount:4360}
-    ];
-
-    // ------------------------------
-    // 行程管理
-    // ------------------------------
-    function renderTrips() {
-        const container = document.querySelector('#itinerary-page .space-y-4');
-        container.innerHTML = '';
-        trips.forEach((trip, index) => {
-            const li = document.createElement('div');
-            li.className = 'morandi-card p-5 flex gap-4 items-start border-l-4 ' + (trip.type ? 'border-l-[#8E9775]' : 'border-l-transparent');
-            li.innerHTML = `
-                <span class="text-[11px] font-light text-gray-400 mt-1">${trip.time}</span>
-                <div class="flex-1">
-                    <h4 class="text-sm font-medium mb-1">${trip.title}</h4>
-                    <p class="text-xs text-gray-400 font-light">${trip.note}</p>
-                </div>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[#FAF9F6] text-[#8E9775]">${trip.type}</span>
-                <button class="text-gray-300 ml-2">刪除</button>
-            `;
-            li.querySelector('button').onclick = () => deleteTrip(index);
-            container.appendChild(li);
-        });
-    }
-
-    function addTrip() {
-        const title = prompt('行程名稱？');
-        if (!title) return;
-        const time = prompt('時間？(例如 09:00)');
-        if (!time) return;
-        const note = prompt('備註？(可空白)') || '';
-        const type = prompt('類別？(可空白)') || '';
-        trips.push({time, title, note, type});
-        localStorage.setItem('trips', JSON.stringify(trips));
-        renderTrips();
-    }
-
-    function deleteTrip(index) {
-        if (confirm('確定刪除這個行程嗎？')) {
-            trips.splice(index, 1);
+        function addTrip() {
+            const title = prompt('行程名稱？'); if (!title) return;
+            const time = prompt('時間？(例如 09:00)'); if (!time) return;
+            const note = prompt('備註？(可空白)') || '';
+            const type = prompt('類別？(可空白)') || '';
+            trips.push({time, title, note, type});
             localStorage.setItem('trips', JSON.stringify(trips));
             renderTrips();
         }
-    }
 
-    document.querySelector('#itinerary-page button.text-[#8E9775]').onclick = addTrip;
+        function deleteTrip(index) {
+            if (confirm('確定刪除這個行程嗎？')) {
+                trips.splice(index, 1);
+                localStorage.setItem('trips', JSON.stringify(trips));
+                renderTrips();
+            }
+        }
 
-    // ------------------------------
-    // 記帳管理
-    // ------------------------------
-    function renderExpenses() {
-        const container = document.querySelector('#budget-page .space-y-4') || document.createElement('div');
-        container.innerHTML = '';
-        expenses.forEach((exp, index) => {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <div class="flex justify-between text-xs mb-2">
-                    <span class="font-light">${exp.name}</span>
-                    <span class="text-gray-400">¥ ${exp.amount}</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill" style="width:0;"></div></div>
-                <button class="text-xs mt-1 text-gray-500">刪除</button>
-            `;
-            div.querySelector('button').onclick = () => deleteExpense(index);
-            container.appendChild(div);
-        });
-        const total = expenses.reduce((sum,e)=>sum+Number(e.amount),0);
-        document.querySelector('#budget-page h2').textContent = `¥ ${total}`;
-        document.querySelector('#budget-page p.text-[11px]').textContent = `≈ NT$ ${Math.round(total/4.65)}`;
-        // 更新進度條百分比
-        container.querySelectorAll('.progress-fill').forEach((bar,i)=>{
-            const percent = total ? (expenses[i].amount/total*100) : 0;
-            bar.style.width = percent + '%';
-        });
-        if (!document.querySelector('#budget-page .space-y-4')) document.querySelector('#budget-page').appendChild(container);
-    }
+        document.querySelector('#itinerary-page button.text-[#8E9775]').onclick = addTrip;
 
-    function addExpense() {
-        const name = prompt('項目名稱？');
-        if (!name) return;
-        const amount = parseFloat(prompt('金額？'));
-        if (isNaN(amount)) return alert('請輸入正確數字');
-        expenses.push({name, amount});
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        renderExpenses();
-    }
+        // ------------------------------
+        // 記帳管理
+        // ------------------------------
+        const expenseContainer = document.querySelector('#budget-page .space-y-4');
+        function renderExpenses() {
+            expenseContainer.innerHTML = '';
+            const total = expenses.reduce((sum,e)=>sum+Number(e.amount),0);
+            expenses.forEach((exp, index) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="font-light">${exp.name}</span>
+                        <span class="text-gray-400">¥ ${exp.amount}</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${total? (exp.amount/total*100):0}%"></div></div>
+                    <button class="text-xs mt-1 text-gray-500">刪除</button>
+                `;
+                div.querySelector('button').onclick = () => deleteExpense(index);
+                expenseContainer.appendChild(div);
+            });
+            document.querySelector('#budget-page h2').textContent = `¥ ${total}`;
+            document.querySelector('#budget-page p.text-[11px]').textContent = `≈ NT$ ${Math.round(total/4.65)}`;
+        }
 
-    function deleteExpense(index) {
-        if (confirm('確定刪除這筆花費嗎？')) {
-            expenses.splice(index, 1);
+        function addExpense() {
+            const name = prompt('項目名稱？'); if (!name) return;
+            const amount = parseFloat(prompt('金額？')); if (isNaN(amount)) return alert('請輸入正確數字');
+            expenses.push({name, amount});
             localStorage.setItem('expenses', JSON.stringify(expenses));
             renderExpenses();
         }
-    }
 
-    document.querySelector('#budget-page button').onclick = addExpense;
+        function deleteExpense(index) {
+            if (confirm('確定刪除這筆花費嗎？')) {
+                expenses.splice(index, 1);
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+        }
 
-    // ------------------------------
-    // 初始化渲染
-    // ------------------------------
-    renderTrips();
-    renderExpenses();
-</script>
+        document.querySelector('#budget-page button').onclick = addExpense;
+
+        // ------------------------------
+        // 初次渲染
+        // ------------------------------
+        renderTrips();
+        renderExpenses();
+
+    });
+    </script>
+</body>
+</html>
